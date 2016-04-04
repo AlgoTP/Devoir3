@@ -38,7 +38,6 @@ struct Coord
     float x,y;
 };
 
-
 double getDistance(Coord a, Coord b)
 {
     return(sqrt(pow((b.x - a.x), 2) + pow((b.y - a.y), 2)));
@@ -46,27 +45,25 @@ double getDistance(Coord a, Coord b)
 
 class Vaisseau
 {
-  private:
+  public:
     const char *name;
     float cap_carburant;
     int type;
-  public:
-    Vaisseau(float capacity, int type);
+    Vaisseau(const char *name,float capacity);
+    ~Vaisseau();
     void toString();
 };
 
 struct list_vaisseau
 {
     struct list_vaisseau *next;
-    Vaisseau v;
-
+    Vaisseau *vaisseau;
 };
 
 class Planete : Nation
 {
-  private:
-    bool visited;
   public:
+    bool visited;
     Coord coord;
     unsigned long  population;
     float prixCarburant;

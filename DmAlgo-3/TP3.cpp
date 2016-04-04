@@ -24,7 +24,7 @@ void Plateau::toString()
   //TODO Pacours graphe
   while(this->vaisseaux)
   {
-    vaisseaux->v.toString();
+    vaisseaux->vaisseau->toString();
     vaisseaux = vaisseaux->next;
   }
 }
@@ -42,6 +42,15 @@ void print_all_liste(t_graph_dyn *g)
       list_adj = list_adj->next;
     }
     list_som = list_som->next;
+  }
+}
+
+void print_all_vaisseau(struct list_vaisseau *vaisseau)
+{
+  while(vaisseau->next)
+  {
+    cout << vaisseau->vaisseau->name << "" << vaisseau->vaisseau->cap_carburant << endl;
+    vaisseau=vaisseau->next;
   }
 }
 
@@ -86,6 +95,33 @@ char** split(string s)
   return tab;
 }
 
+char** splitForVaisseau(string s)
+{
+  char **tab = new char*[2];
+  for(size_t p = 0; p < 2;p++)
+  {
+    (tab[p]) = new char[50];
+  }
+
+  size_t id = 0;
+  size_t i = 0;
+  for(size_t j = 0; j < strlen(s.c_str()) && s[j] != '\r' && s[j] != '\n' && s[j] != '\0'; j++)
+  {
+    if(s[j] == ' ')
+    {
+      tab[id][i] = 0;
+      id++;
+      i = 0;
+    }
+    else
+    {
+      tab[id][i] += s[j];
+      i++;
+    }
+  }
+  return tab;
+}
+
 Planete::Planete(const char *nom,float x1,float y1,const char *nation,unsigned long population, float prixCarburant)
 {
   this->nom = nom;
@@ -96,6 +132,11 @@ Planete::Planete(const char *nom,float x1,float y1,const char *nation,unsigned l
   this->prixCarburant = prixCarburant;
 }
 
+Vaisseau::Vaisseau(const char *name,float cap_carburant)
+{
+  this->name = name;
+  this->cap_carburant = cap_carburant;
+}
 
 void init_liste(struct t_graph_dyn *g, const char *filename)
 {
@@ -125,7 +166,7 @@ void init_liste(struct t_graph_dyn *g, const char *filename)
       adj->planete->population = atoi(tab[3]);
       adj->planete->nation = tab[4];
       adj->planete->prixCarburant = atoi(tab[5]);
-
+      adj->planete->visited = false;
       adj->next = new struct list_adj;
       som->next = new struct list_som;
       som->prec = adj;
@@ -141,10 +182,35 @@ void init_liste(struct t_graph_dyn *g, const char *filename)
   }
 }
 
+void init_vaisseau(struct list_vaisseau *list_v,const char *filename)
+{
+  ifstream file_stream(filename);
+  char tmp[50];
+  if(file_stream)
+  {
+    while(!file_stream.eof())
+    {
+      file_stream.getline(tmp, 50);
+      if(tmp[0] == '\0')
+        break;
+      char **tab = splitForVaisseau(tmp);
+      Vaisseau *vaisseau = new Vaisseau(tab[0],atoi(tab[1]));
+      list_v->vaisseau = vaisseau;
+      list_v->vaisseau->name = tab[0];
+      list_v->vaisseau->cap_carburant = atoi(tab[1]);
+      list_v->next = new struct list_vaisseau;
+      list_v = list_v->next;
+    }
+  }
+}
+
 int main()
 {
   struct t_graph_dyn *b = new struct t_graph_dyn;
+  struct list_vaisseau *v = new struct list_vaisseau;
   init_liste(b,"test.txt");
   print_all_liste(b);
+  init_vaisseau(v,"test2.txt");
+  print_all_vaisseau(v);
   return 0;
 }
