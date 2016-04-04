@@ -1,0 +1,3 @@
+Manitoba 25.2 600.87 150000 Canada 44.5
+0Saskatchewan 223.94 706.12 984000 Canada 40.60
+Texas 441.96 52.41 85139547 USA 95.10
