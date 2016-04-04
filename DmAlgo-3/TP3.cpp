@@ -35,7 +35,7 @@ void print_all_liste(t_graph_dyn *g)
   struct list_adj *list_adj= list_som->succ;
   while(list_som)
   {
-    while(list_adj)
+    while(list_adj->next)
     {
       cout << list_adj->planete->nom << "" << list_adj->planete->coord.x << "" << list_adj->planete->coord.y << "" <<
       list_adj->planete->population << "" << list_adj->planete->nation << "" << list_adj->planete->prixCarburant << endl;
@@ -114,7 +114,7 @@ void init_liste(struct t_graph_dyn *g, const char *filename)
     while(!file_stream.eof())
     {
       file_stream.getline(tmp, 50);
-      if(tmp[0] == ' ' || tmp[0] == '\n')
+      if(tmp[0] == ' ' || tmp[0] == '\n' || tmp[0] == '\0')
         break;
       char **tab = split(tmp);
       Planete *t = new Planete(tab[0],atoi(tab[1]),atoi(tab[2]),tab[3],atoi(tab[4]),atoi(tab[5]));
