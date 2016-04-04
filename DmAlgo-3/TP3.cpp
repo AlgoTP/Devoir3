@@ -29,6 +29,22 @@ void Plateau::toString()
   }
 }
 
+void print_all_liste(t_graph_dyn *g)
+{
+  struct list_som *list_som= g->lsom;
+  struct list_adj *list_adj= list_som->succ;
+  while(list_som)
+  {
+    while(list_adj)
+    {
+      cout << list_adj->planete->nom << "" << list_adj->planete->coord.x << "" << list_adj->planete->coord.y << "" <<
+      list_adj->planete->population << "" << list_adj->planete->nation << "" << list_adj->planete->prixCarburant << endl;
+      list_adj = list_adj->next;
+    }
+    list_som = list_som->next;
+  }
+}
+
 void Graph::parcours(struct t_graph_dyn *g)
 {
   struct list_som *list_som= g->lsom;
@@ -85,10 +101,12 @@ void init_liste(struct t_graph_dyn *g, const char *filename)
 {
   ifstream file_stream(filename);
 
-  struct list_som *som = g->lsom;
+  struct list_som *som;
   som = new struct list_som;
-  struct list_adj *adj = som->succ;
+  g->lsom = som;
+  struct list_adj *adj;
   adj = new struct list_adj;
+  som->succ = adj;
   char tmp[50];
 
   if(file_stream)
@@ -96,6 +114,8 @@ void init_liste(struct t_graph_dyn *g, const char *filename)
     while(!file_stream.eof())
     {
       file_stream.getline(tmp, 50);
+      if(tmp[0] == ' ' || tmp[0] == '\n')
+        break;
       char **tab = split(tmp);
       Planete *t = new Planete(tab[0],atoi(tab[1]),atoi(tab[2]),tab[3],atoi(tab[4]),atoi(tab[5]));
       adj->planete = t;
@@ -125,5 +145,6 @@ int main()
 {
   struct t_graph_dyn *b = new struct t_graph_dyn;
   init_liste(b,"test.txt");
+  print_all_liste(b);
   return 0;
 }
