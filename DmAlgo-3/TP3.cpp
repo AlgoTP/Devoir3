@@ -1,6 +1,6 @@
 #include "TP3.h"
 
-void init_list_adj(struct t_graph_dyn *g,const char *filename);
+void init_list_adj(struct t_graph_dyn *g);
 void parc_largeur(struct list_som *list);
 Nation::Nation(const char *nom)
 {
@@ -184,17 +184,18 @@ Vaisseau::Vaisseau(const char *name,float cap_carburant)
 
 void print_all_liste2(t_graph_dyn *g)
 {
-  int accu = 0;
-  while(g->lsom->next)
+  struct list_som *som = g->lsom;
+  struct list_adj *adj;
+  while(som)
   {
-    while(g->lsom->succ)
+    adj = som->succ;
+    while(adj)
     {
-      cout << accu++ << endl;
-      g->lsom->succ = g->lsom->succ->next;
+      adj  = adj->next;
     }
-    cout << g->lsom->planete->nom << " " << g->lsom->planete->coord.x << " " << g->lsom->planete->coord.y << " " <<
-      g->lsom->planete->population << " " << g->lsom->planete->nation << " " << g->lsom->planete->prixCarburant << endl;
-    g->lsom= g->lsom->next;
+    cout << som->planete->nom << " " << som->planete->coord.x << " " << som->planete->coord.y << " " <<
+      som->planete->population << " " << som->planete->nation << " " << som->planete->prixCarburant << endl;
+    som= som->next;
   }
 }
 
@@ -204,10 +205,9 @@ struct t_graph_dyn *init_liste2(struct t_graph_dyn *g,const char *filename)
 
   struct list_som *som = new struct list_som;
   struct list_adj *adj = new struct list_adj;
-  g->lsom = som;
-  g->lsom->succ = adj;
+  g->lsom = new struct list_som;
+  som = g->lsom;
   char tmp[50];
-
   if(file_stream)
   {
     while(!file_stream.eof())
@@ -217,68 +217,45 @@ struct t_graph_dyn *init_liste2(struct t_graph_dyn *g,const char *filename)
         break;
       char **tab = split(tmp);
       Planete *t = new Planete(tab[0],atoi(tab[1]),atoi(tab[2]),tab[3],atoi(tab[4]),atoi(tab[5]));
-      g->lsom->planete = t;
-      g->lsom->planete->nom = tab[0];
-      g->lsom->planete->coord.x = atoi(tab[1]);
-      g->lsom->planete->coord.y = atoi(tab[2]);
-      g->lsom->planete->population = atoi(tab[3]);
-      g->lsom->planete->nation = tab[4];
-      g->lsom->planete->prixCarburant = atoi(tab[5]);
-      g->lsom->planete->visited = false;
-
-      g->lsom->next = new struct list_som;
-      g->lsom->next->prec = g->lsom;
-      g->lsom = g->lsom->next;
+      som->planete = t;
+      som->next = new struct list_som;
+      som->next->prec = som;
+      som = som->next;
     }
+    som->prec->next = NULL;
+    delete som;
   }
-  /*while(g->lsom->next)
-    {
-    cout << g->lsom->planete->nom << endl;
-    g->lsom = g->lsom->next;
-    }
-    while(g->lsom->prec)
-    {
-    g->lsom = g->lsom->prec;
-    cout << accu++ << endl;
-    }*/
-  init_list_adj(g,filename);
-  print_all_liste2(g);
+  
+  init_list_adj(g);
+  return g;
 }
 
-void init_list_adj(struct t_graph_dyn *g,const char *filename)
+void init_list_adj(struct t_graph_dyn *g)
 {
-  ifstream file_stream(filename);
   struct list_som *som = new struct list_som;
   struct list_adj *adj = new struct list_adj;
   som = g->lsom;
-  adj = g->lsom->succ;
-  char tmp[50];
-
-  if(file_stream)
+  //adj = g->lsom->succ;
+  while(som)
   {
-    while(!file_stream.eof())
-    {
-      file_stream.getline(tmp,50);
-      if(tmp[0] == ' ' || tmp[0] == '\n' || tmp[0] == '\0')
-        break;
-      if(!g->lsom->next)
+      adj = new struct list_adj;
+      som->succ = adj;
+      struct list_som *tmp = g->lsom;
+      while(tmp)
       {
-        adj->elt = g->lsom->prec;
-        while(!file_stream.eof())
-        {
-          file_stream.getline(tmp,50);
-          if(tmp[0] == ' ' || tmp[0] == '\n' || tmp[0] == '\0')
-            break;
-          adj->next = new struct list_adj;
-          som = som->prec;
-          adj->elt = som->prec;
-        }
+          if(tmp != som)
+          {
+              adj->elt = tmp;
+              adj->next = new struct list_adj;
+              adj = adj->next;
+          }
+          tmp = tmp->next;
+
       }
-      adj->elt = g->lsom->next;
-      adj->next = new struct list_adj;
-      g->lsom = g->lsom->next;
-    }
+      adj->next = NULL;
+      som = som->next;
   }
+ 
 }
 
 
