@@ -98,8 +98,9 @@ struct list_adj
 struct list_som
 {
     struct list_som *next;
+    struct list_som *prec;
     struct list_adj *succ;
-    struct list_adj *prec;
+    //struct list_adj *prec;
     Planete *planete; //TODO add planete constructor
 };
 
@@ -109,27 +110,27 @@ struct t_graph_dyn
     struct list_som *lsom;
 };
 
- 
+
 struct qcell {
   struct qcell *next;
   struct list_adj *elt;
 };
- 
+
 /* queue sentinel */
 struct queue {
   struct qcell *entry;
 };
- 
+
 static inline
 struct queue* new_queue() {
   return (queue*) calloc(1, sizeof (struct queue));
 }
- 
+
 static inline
 int queue_is_empty(struct queue *queue) {
   return queue->entry == NULL;
 }
- 
+
 static inline
 void queue_push(struct queue *queue, struct list_adj *x) {
   struct qcell *tmp = (qcell*)malloc(sizeof (struct qcell));
@@ -141,7 +142,7 @@ void queue_push(struct queue *queue, struct list_adj *x) {
   }
   queue->entry = tmp;
 }
- 
+
 static inline
 struct list_adj* queue_pop(struct queue *queue) {
   assert(queue->entry);
@@ -154,5 +155,5 @@ struct list_adj* queue_pop(struct queue *queue) {
   free(tmp);
   return r;
 }
- 
+
 # endif
